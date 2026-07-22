@@ -1,0 +1,1209 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Management System</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f2f2f2;
+    padding:20px;
+}
+
+.container{
+    width:85%;
+    margin:auto;
+}
+
+.box{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:10px;
+}
+
+input,button{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+}
+
+button{
+    background:#1877f2;
+    color:white;
+    border:0;
+    cursor:pointer;
+}
+
+.delete{
+    background:red;
+}
+
+.edit{
+    background:green;
+}
+
+.item{
+    background:#eee;
+    padding:10px;
+    margin:10px 0;
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+<h1>Student Management System</h1>
+
+
+<div class="box">
+
+<h2>Students</h2>
+
+<input id="studentName" placeholder="Name">
+<input id="studentAge" placeholder="Age">
+
+<button onclick="addStudent()">Add Student</button>
+
+<div id="students"></div>
+
+</div>
+
+
+
+
+<div class="box">
+
+<h2>Courses</h2>
+
+<input id="courseTitle" placeholder="Title">
+<input id="coursePrice" placeholder="Price">
+
+<button onclick="addCourse()">Add Course</button>
+
+<div id="courses"></div>
+
+</div>
+
+
+
+
+<div class="box">
+
+<h2>Enrollments</h2>
+
+<input id="studentId" placeholder="Student ID">
+
+<input id="courseId" placeholder="Course ID">
+
+<button onclick="addEnrollment()">
+Enroll Student
+</button>
+
+
+<div id="enrollments"></div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+const API="http://127.0.0.1:8000";
+
+
+
+// STUDENTS
+
+
+async function getStudents(){
+
+let res=await fetch(API+"/students");
+
+let data=await res.json();
+
+let box=document.getElementById("students");
+
+box.innerHTML="";
+
+
+data.forEach(s=>{
+
+box.innerHTML+=`
+
+<div class="item">
+
+<b>ID:</b> ${s.id}
+
+<br>
+
+<b>Name:</b> ${s.name}
+
+<br>
+
+<b>Age:</b> ${s.age}
+
+
+<button class="edit"
+onclick="editStudent(${s.id},'${s.name}',${s.age})">
+Edit
+</button>
+
+
+<button class="delete"
+onclick="deleteStudent(${s.id})">
+Delete
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+async function addStudent(){
+
+let name=studentName.value;
+
+let age=studentAge.value;
+
+
+await fetch(API+"/students",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+name:name,
+
+age:Number(age)
+
+})
+
+});
+
+
+getStudents();
+
+}
+
+
+
+async function deleteStudent(id){
+
+await fetch(API+"/students/"+id,{
+
+method:"DELETE"
+
+});
+
+
+getStudents();
+
+}
+
+
+
+async function editStudent(id,name,age){
+
+let newName=prompt("Name",name);
+
+let newAge=prompt("Age",age);
+
+
+await fetch(API+"/students/"+id,{
+
+method:"PUT",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+name:newName,
+
+age:Number(newAge)
+
+})
+
+});
+
+
+getStudents();
+
+}
+
+
+
+
+
+// COURSES
+
+
+async function getCourses(){
+
+let res=await fetch(API+"/courses");
+
+let data=await res.json();
+
+let box=document.getElementById("courses");
+
+box.innerHTML="";
+
+
+data.forEach(c=>{
+
+box.innerHTML+=`
+
+<div class="item">
+
+<b>ID:</b>${c.id}
+
+<br>
+
+<b>Title:</b>${c.title}
+
+<br>
+
+<b>Price:</b>${c.price}
+
+
+
+<button class="edit"
+onclick="editCourse(${c.id},'${c.title}',${c.price})">
+Edit
+</button>
+
+
+<button class="delete"
+onclick="deleteCourse(${c.id})">
+Delete
+</button>
+
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+
+async function addCourse(){
+
+await fetch(API+"/courses",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+title:courseTitle.value,
+
+price:Number(coursePrice.value)
+
+})
+
+});
+
+
+getCourses();
+
+}
+
+
+
+async function deleteCourse(id){
+
+await fetch(API+"/courses/"+id,{
+
+method:"DELETE"
+
+});
+
+
+getCourses();
+
+}
+
+
+
+async function editCourse(id,title,price){
+
+let newTitle=prompt("Title",title);
+
+let newPrice=prompt("Price",price);
+
+
+await fetch(API+"/courses/"+id,{
+
+method:"PUT",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+title:newTitle,
+
+price:Number(newPrice)
+
+})
+
+});
+
+
+getCourses();
+
+}
+
+
+
+
+
+// ENROLLMENTS
+
+
+async function addEnrollment(){
+
+await fetch(API+"/enrollments",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+student_id:Number(studentId.value),
+
+course_id:Number(courseId.value)
+
+})
+
+});
+
+
+getEnrollments();
+
+}
+
+
+
+
+async function getEnrollments(){
+
+let res=await fetch(API+"/enrollments");
+
+let data=await res.json();
+
+let box=document.getElementById("enrollments");
+
+box.innerHTML="";
+
+
+data.forEach(e=>{
+
+box.innerHTML+=`
+
+<div class="item">
+
+Enrollment ID: ${e.id}
+
+<br>
+
+Student ID: ${e.student_id}
+
+<br>
+
+Course ID: ${e.course_id}
+
+
+<button class="delete"
+onclick="deleteEnrollment(${e.id})">
+Delete
+</button>
+
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+
+async function deleteEnrollment(id){
+
+await fetch(API+"/enrollments/"+id,{
+
+method:"DELETE"
+
+});
+
+
+getEnrollments();
+
+}
+
+
+
+getStudents();
+
+getCourses();
+
+getEnrollments();
+
+
+</script>
+
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>Student Management</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+
+body{
+    margin:0;
+    background:#eef2f7;
+}
+
+
+header{
+    background:#2563eb;
+    color:white;
+    padding:25px;
+    text-align:center;
+}
+
+
+.container{
+    width:90%;
+    margin:auto;
+}
+
+
+.card{
+
+    background:white;
+    margin:25px 0;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 5px 15px #ddd;
+
+}
+
+
+h2{
+    color:#2563eb;
+}
+
+
+
+input{
+
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:1px solid #ddd;
+    border-radius:8px;
+
+}
+
+
+
+button{
+
+    padding:10px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    margin:5px;
+
+}
+
+
+.add{
+    background:#2563eb;
+    width:100%;
+}
+
+
+.edit{
+
+    background:#16a34a;
+
+}
+
+
+.delete{
+
+    background:#dc2626;
+
+}
+
+
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+
+}
+
+
+
+th{
+
+    background:#2563eb;
+    color:white;
+
+}
+
+
+td,th{
+
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid #ddd;
+
+}
+
+
+
+tr:hover{
+
+    background:#f1f5f9;
+
+}
+
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>🎓 Student Management System</h1>
+
+</header>
+
+
+
+<div class="container">
+
+
+
+<div class="card">
+
+<h2>Add Student</h2>
+
+<input id="studentName" placeholder="Student Name">
+
+<input id="studentAge" placeholder="Age">
+
+
+<button class="add" onclick="addStudent()">
+Add Student
+</button>
+
+
+<table>
+
+<thead>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Age</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+
+<tbody id="students"></tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+<div class="card">
+
+
+<h2>Add Course</h2>
+
+
+<input id="courseTitle" placeholder="Course Title">
+
+
+<input id="coursePrice" placeholder="Price">
+
+
+<button class="add" onclick="addCourse()">
+Add Course
+</button>
+
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>Title</th>
+<th>Price</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="courses"></tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h2>Enroll Student</h2>
+
+
+<input id="studentId" placeholder="Student ID">
+
+
+<input id="courseId" placeholder="Course ID">
+
+
+
+<button class="add" onclick="addEnrollment()">
+
+Enroll
+
+</button>
+
+
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>Student</th>
+<th>Course</th>
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="enrollments"></tbody>
+
+
+</table>
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+<script>
+
+
+const API="http://127.0.0.1:8000";
+
+
+
+
+// STUDENTS
+
+
+async function getStudents(){
+
+let res=await fetch(API+"/students");
+
+let data=await res.json();
+
+
+students.innerHTML="";
+
+
+data.forEach(s=>{
+
+
+students.innerHTML+=`
+
+<tr>
+
+<td>${s.id}</td>
+
+<td>${s.name}</td>
+
+<td>${s.age}</td>
+
+
+<td>
+
+<button class="edit"
+onclick="editStudent(${s.id},'${s.name}',${s.age})">
+
+Edit
+
+</button>
+
+
+<button class="delete"
+onclick="deleteStudent(${s.id})">
+
+Delete
+
+</button>
+
+
+</td>
+
+
+</tr>
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+
+async function addStudent(){
+
+
+await fetch(API+"/students",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+name:studentName.value,
+
+age:Number(studentAge.value)
+
+})
+
+});
+
+
+getStudents();
+
+}
+
+
+
+
+
+async function deleteStudent(id){
+
+
+await fetch(API+"/students/"+id,{
+
+method:"DELETE"
+
+});
+
+
+getStudents();
+
+
+}
+
+
+
+
+
+async function editStudent(id,name,age){
+
+
+let n=prompt("Name",name);
+
+let a=prompt("Age",age);
+
+
+await fetch(API+"/students/"+id,{
+
+method:"PUT",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+name:n,
+
+age:Number(a)
+
+})
+
+});
+
+
+getStudents();
+
+}
+
+
+
+
+
+// COURSES
+
+
+
+async function getCourses(){
+
+
+let res=await fetch(API+"/courses");
+
+let data=await res.json();
+
+
+courses.innerHTML="";
+
+
+data.forEach(c=>{
+
+
+courses.innerHTML+=`
+
+<tr>
+
+<td>${c.id}</td>
+
+<td>${c.title}</td>
+
+<td>${c.price}</td>
+
+
+<td>
+
+
+<button class="edit"
+onclick="editCourse(${c.id},'${c.title}',${c.price})">
+
+Edit
+
+</button>
+
+
+<button class="delete"
+onclick="deleteCourse(${c.id})">
+
+Delete
+
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+`;
+
+});
+
+
+}
+
+
+
+
+
+async function addCourse(){
+
+
+await fetch(API+"/courses",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+title:courseTitle.value,
+
+price:Number(coursePrice.value)
+
+})
+
+});
+
+
+getCourses();
+
+
+}
+
+
+
+
+
+async function deleteCourse(id){
+
+
+await fetch(API+"/courses/"+id,{
+
+method:"DELETE"
+
+});
+
+
+getCourses();
+
+}
+
+
+
+
+
+async function editCourse(id,title,price){
+
+
+let t=prompt("Title",title);
+
+let p=prompt("Price",price);
+
+
+await fetch(API+"/courses/"+id,{
+
+method:"PUT",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+title:t,
+
+price:Number(p)
+
+})
+
+});
+
+
+getCourses();
+
+
+}
+
+
+
+
+
+
+// ENROLLMENTS
+
+
+
+async function addEnrollment(){
+
+
+await fetch(API+"/enrollments",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+student_id:Number(studentId.value),
+
+course_id:Number(courseId.value)
+
+})
+
+});
+
+
+getEnrollments();
+
+
+}
+
+
+
+
+
+async function getEnrollments(){
+
+
+let res=await fetch(API+"/enrollments");
+
+let data=await res.json();
+
+
+enrollments.innerHTML="";
+
+
+data.forEach(e=>{
+
+
+enrollments.innerHTML+=`
+
+<tr>
+
+<td>${e.id}</td>
+
+<td>${e.student}</td>
+
+<td>${e.course}</td>
+
+
+<td>
+
+<button class="delete"
+onclick="deleteEnrollment(${e.id})">
+
+Delete
+
+</button>
+
+
+</td>
+
+
+</tr>
+
+`;
+
+});
+
+
+}
+
+
+
+
+
+async function deleteEnrollment(id){
+
+
+await fetch(API+"/enrollments/"+id,{
+
+method:"DELETE"
+
+});
+
+
+getEnrollments();
+
+}
+
+
+
+
+
+getStudents();
+
+getCourses();
+
+getEnrollments();
+
+
+</script>
+
+
+</body>
+</html>
